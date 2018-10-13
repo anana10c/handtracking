@@ -9,7 +9,7 @@ from datetime import datetime
 import cv2
 from utils import label_map_util
 from collections import defaultdict
-from protos.splatter.py import Splatter
+
 
 detection_graph = tf.Graph()
 sys.path.append("..")
@@ -59,24 +59,23 @@ def draw_box_on_image(num_hands_detect, score_thresh, scores, boxes, im_width, i
             p2 = (int(right), int(bottom))
             cv2.rectangle(image_np, p1, p2, (77, 255, 9), 3, 1)
 
-def draw_splatter(num_hands_detect, score_thresh, scores, boxes, im_width, im_height, image_np, splotch): #CHANGE TO NUM PALMS LATER
-    for i in range(num_palms_detect):
-        if (scores[i] > score_thresh):
-            (left, right, top, bottom) = (boxes[i][1] * im_width, boxes[i][3] * im_width,
-                                          boxes[i][0] * im_height, boxes[i][2] * im_height)
-            image_np.paste(splotch, (left, right, top, bottom))
-
-def get_center_and_area(num_hands_detect, score_thresh, scores, boxes, im_width, im_height):
-    centers = []
+			
+def get_topleft_and_area(num_hands_detect, score_thresh, scores, boxes, im_width, im_height):
+    toplefts = []
+    bottomrights = []
     areas = []
     for i in range(num_hands_detect):
         if (scores[i] > score_thresh):
-            (left, right, top, bottom) = (boxes[i][1] * im_width, boxes[i][3] * im_width, boxes[i][0] * im_height, boxes[i][2] * im_height)
+            (left, right, top, bottom) = (boxes[i][1] * im_width, boxes[i][3] * im_width,
+                                        boxes[i][0] * im_height, boxes[i][2] * im_height)
             p1 = (int(left), int(top))
             p2 = (int(right), int(bottom))
-            centers.append((p2[0] + p1[0])/2, (p2[1] + p2[0])/2)
+            #centers.append((p2[0] + p1[0])/2, (p2[1] + p2[0])/2)
+            toplefts.append(p1)
+            bottomrights.append(p2)
             areas.append((p2[0] - p1[0]) * (p2[1] - p2[0]))
-    return centers, areas
+    return toplefts, bottomrights, areas
+
 
 # Show fps value on image.
 def draw_fps_on_image(fps, image_np):

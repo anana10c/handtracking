@@ -7,7 +7,6 @@ import time
 from utils.detector_utils import WebcamVideoStream
 import datetime
 import argparse
-from protos.splatter.py import Splatter
 
 frame_processed = 0
 score_thresh = 0.2
@@ -29,37 +28,34 @@ def worker(input_q, output_q, cap_params, frame_processed):
             # while scores contains the confidence for each of these boxes.
             # Hint: If len(boxes) > 1 , you may assume you have found atleast one hand (within your score threshold)
 
-            boxes, scores = detector_utils.detect_objects(
-                frame, detection_graph, sess)
+            boxes, scores = detector_utils.detect_objects(frame, detection_graph, sess)
 
-			#fist/palm differentiation here but let's ignore that for now
+	    #fist/palm differentiation here but let's ignore that for now
 
             # draw bounding boxes
-            """detector_utils.draw_box_on_image(
+            detector_utils.draw_box_on_image(
                 cap_params['num_hands_detect'], cap_params["score_thresh"],
                 scores, boxes, cap_params['im_width'], cap_params['im_height'],
-                frame)"""
+                frame)
+            toplefts, bottomrights, areas = detector_utils.get_topleft_and_area(cap_params['num_hands_detect'], cap_params["score_thresh"], scores, boxes, cap_params['im_width'], cap_params['im_height'])
+            for x in range(0, cap_params['num_hands_detect']):
+                splatters.append(Splatter(toplefts[x], bottomrights[x]))
+                for splotch in splatters:
+                    roi = frame[splotch.topleft[0]:splotch.bottomright[0], splotch.topleft[1]:splotch.bottomright[1]]
+                    background = roi[roi[splotch.outline[:, :, 3] == 0] = (0, 0, 0, 0)]
+                    overlap = roi[roi[splotch.outline[:, :, 3] != 0] = (0, 0, 0, 0)]
+                    overlap_area = cv2.addWeighted(overlap, 1-splotch.opacity, splotch.outline, splotch.opacity, 0)
+                    dst = cv2.add(overlap_area, background)
+                    frame[splotch.topleft[0]:splotch.bottomright[0], splotch.topleft[1]:splotch.bottomright[1]] = dst
+                    splotch.fade()
+                    
+		#when you make the splatter, be sure to do make it while opacity > 0
+		#adjust splatter size according to area
+		#recolor splatter (replace all RGB values with that of chosen color and do *not* change the A channel
+		#make splatter center match up with box center and paste on
+		#might wanna somehow save all the splatters cuz each new frame gets refreshed and we wanna keep all the splatters
 
-            centers, areas = detector_utils.get_center_and_area(cap_params['num_hands_detect'], cap_params["score_thresh"], scores, boxes, cap_params['im_width'], cap_params['im_height'])
-
-            for x in range(0, cap_params['num_hands_detect']): #add a splatter to the list for every open hand detected
-                splotch = Splatter()
-                splatters.append(splotch)
-                detector_utils.draw_splatter(
-                    cap_params['num_hands_detect'], cap_params["score_thresh"], scores, boxes, cap_params['im_width'], cap_params['im_height'], frame, splotch)
-                for each in splatters:
-                    if each.opacity > 0:
-                        each.fade()
-
-
-
-            #when you make the splatter, be sure to do make it while opacity > 0
-            #adjust splatter size according to area
-			#recolor splatter (replace all RGB values with that of chosen color and do *not* change the A channel
-			#make splatter center match up with box center and paste on
-			#might wanna somehow save all the splatters cuz each new frame gets refreshed and we wanna keep all the splatters
-
-			# add frame with splatters to queue (below)
+	    # add frame with splatters to queue (below)
             output_q.put(frame)
             frame_processed += 1
         else:
@@ -160,10 +156,10 @@ if __name__ == '__main__':
         frame = cv2.flip(frame, 1)
         index += 1
 
-        input_q.put(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+        input_q.put(cv2.cvtColor(frame, cv2.COLOR_BGR2RGBA))
         output_frame = output_q.get()
 
-        output_frame = cv2.cvtColor(output_frame, cv2.COLOR_RGB2BGR)
+        output_frame = cv2.cvtColor(output_frame, cv2.COLOR_RGBA2BGR)
 
         elapsed_time = (datetime.datetime.now() - start_time).total_seconds()
         num_frames += 1

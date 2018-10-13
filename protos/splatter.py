@@ -34,9 +34,10 @@ import cv2
 import random
 
 class Splatter:
-    def __init__(self, color=None):
+    def __init__(self, topleft, bottomright, color=None):
         self.outline = cv2.imread('splatter-original.png', -1)
         print(self.outline.shape)
+        self.outline = cv2.resize(self.outline, (bottomright[0]-topleft[0], bottomright[1]-topleft[1]), interpolation = cv2.INTER_AREA)
         cv2.cvtColor(self.outline, cv2.COLOR_BGRA2RGBA) #remember to try to convert frame to RGBA also
         if color == None:
             self.color = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
@@ -48,7 +49,10 @@ class Splatter:
         self.outline[:, :, 2] = self.color[2]
         #self.outline[:, :, 0:3] = self.color #not sure if this works reee numpy indexing
         self.opacity = 1
+        self.topleft = topleft
+        self.bottomright = bottomright
 
     def fade(self):
-        if self.opacity > 0:
+        #self.outline[self.outline[:, :, 3] >= 4] -= 4
+        if self.opacity >= 0.1:
             self.opacity -= 0.1
