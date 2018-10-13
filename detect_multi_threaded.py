@@ -7,6 +7,7 @@ import time
 from utils.detector_utils import WebcamVideoStream
 import datetime
 import argparse
+import Splatter
 
 frame_processed = 0
 score_thresh = 0.2

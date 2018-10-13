@@ -16,6 +16,7 @@ class Splatter:
 
     def fade(self):
         self = self.enhance(opacity)
-        self.opacity -= 0.2
+        if self.opacity > 0
+            self.opacity -= 0.1
 
     

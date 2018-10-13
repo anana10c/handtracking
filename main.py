@@ -34,16 +34,23 @@ def worker(input_q, output_q, cap_params, frame_processed):
 			#fist/palm differentiation here but let's ignore that for now
 
             # draw bounding boxes
-            detector_utils.draw_box_on_image(
+            """detector_utils.draw_box_on_image(
                 cap_params['num_hands_detect'], cap_params["score_thresh"],
                 scores, boxes, cap_params['im_width'], cap_params['im_height'],
-                frame)
+                frame)"""
 
 			centers, areas = detector_utils.get_center_and_area(cap_params['num_hands_detect'], cap_params["score_thresh"], scores, boxes, cap_params['im_width'], cap_params['im_height'])
 
-            for x in range(0, cap_params['num_hands_detect']):
-                splatters.append(Splatter())
-                for splotch in splatters:
+            for x in range(0, cap_params['num_hands_detect']): #add a splatter to the list for every open hand detected
+                splotch = Splatter()
+                splatters.append(splotch)
+                detector_utils.draw_splatter(
+                    cap_params['num_hands_detect'], cap_params["score_thresh"],
+                    scores, boxes, cap_params['im_width'], cap_params['im_height'],
+                    frame, splotch)
+                for each in splatters:
+                    if each.opacity > 0:
+                        each.fade()
 
 
 

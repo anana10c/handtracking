@@ -59,7 +59,13 @@ def draw_box_on_image(num_hands_detect, score_thresh, scores, boxes, im_width, i
             p2 = (int(right), int(bottom))
             cv2.rectangle(image_np, p1, p2, (77, 255, 9), 3, 1)
 
-			
+def draw_splatter(num_hands_detect, score_thresh, scores, boxes, im_width, im_height, image_np, splotch): #CHANGE TO NUM PALMS LATER
+    for i in range(num_palms_detect):
+        if (scores[i] > score_thresh):
+            (left, right, top, bottom) = (boxes[i][1] * im_width, boxes[i][3] * im_width,
+                                          boxes[i][0] * im_height, boxes[i][2] * im_height)
+            image_np.paste(splotch, (left, right, top, bottom))
+
 def get_center_and_area(num_hands_detect, score_thresh, scores, boxes, im_width, im_height):
 	centers = []
 	areas = []
