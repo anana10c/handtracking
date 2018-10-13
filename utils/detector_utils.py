@@ -59,6 +59,19 @@ def draw_box_on_image(num_hands_detect, score_thresh, scores, boxes, im_width, i
             p2 = (int(right), int(bottom))
             cv2.rectangle(image_np, p1, p2, (77, 255, 9), 3, 1)
 
+			
+def get_center_and_area(num_hands_detect, score_thresh, scores, boxes, im_width, im_height):
+	centers = []
+	areas = []
+	for i in range(num_hands_detect):
+        if (scores[i] > score_thresh):
+            (left, right, top, bottom) = (boxes[i][1] * im_width, boxes[i][3] * im_width,
+                                          boxes[i][0] * im_height, boxes[i][2] * im_height)
+            p1 = (int(left), int(top))
+            p2 = (int(right), int(bottom))
+			centers.append((p2[0] + p1[0])/2, (p2[1] + p2[0])/2)
+			areas.append((p2[0] - p1[0]) * (p2[1] - p2[0]))
+
 
 # Show fps value on image.
 def draw_fps_on_image(fps, image_np):
