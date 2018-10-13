@@ -7,6 +7,7 @@ import time
 from utils.detector_utils import WebcamVideoStream
 import datetime
 import argparse
+from splatter import Splatter
 
 frame_processed = 0
 score_thresh = 0.2
@@ -37,13 +38,22 @@ def worker(input_q, output_q, cap_params, frame_processed):
                 cap_params['num_hands_detect'], cap_params["score_thresh"],
                 scores, boxes, cap_params['im_width'], cap_params['im_height'],
                 frame)
-            toplefts, bottomrights, areas = detector_utils.get_topleft_and_area(cap_params['num_hands_detect'], cap_params["score_thresh"], scores, boxes, cap_params['im_width'], cap_params['im_height'])
-            for x in range(0, cap_params['num_hands_detect']):
+            toplefts, bottomrights = detector_utils.get_corners(cap_params['num_hands_detect'], cap_params["score_thresh"], scores, boxes, cap_params['im_width'], cap_params['im_height'])
+            for x in range(0, len(toplefts)):
+                print(x)
                 splatters.append(Splatter(toplefts[x], bottomrights[x]))
                 for splotch in splatters:
+                    print(splotch.topleft)
+                    print(splotch.bottomright)
                     roi = frame[splotch.topleft[0]:splotch.bottomright[0], splotch.topleft[1]:splotch.bottomright[1]]
-                    background = roi[roi[splotch.outline[:, :, 3] == 0] = (0, 0, 0, 0)]
-                    overlap = roi[roi[splotch.outline[:, :, 3] != 0] = (0, 0, 0, 0)]
+                    print(roi.shape)
+                    print(splotch.outline.shape)
+                    background = roi.copy()
+                    overlap = roi.copy()
+                    background[splotch.outline[:, :, 3] != 0] = (0, 0, 0)
+                    print(background.shape)
+                    overlap[splotch.outline[:, :, 3] == 0] = (0, 0, 0)
+                    print(overlap.shape)
                     overlap_area = cv2.addWeighted(overlap, 1-splotch.opacity, splotch.outline, splotch.opacity, 0)
                     dst = cv2.add(overlap_area, background)
                     frame[splotch.topleft[0]:splotch.bottomright[0], splotch.topleft[1]:splotch.bottomright[1]] = dst
@@ -156,10 +166,10 @@ if __name__ == '__main__':
         frame = cv2.flip(frame, 1)
         index += 1
 
-        input_q.put(cv2.cvtColor(frame, cv2.COLOR_BGR2RGBA))
+        input_q.put(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
         output_frame = output_q.get()
 
-        output_frame = cv2.cvtColor(output_frame, cv2.COLOR_RGBA2BGR)
+        output_frame = cv2.cvtColor(output_frame, cv2.COLOR_RGB2BGR)
 
         elapsed_time = (datetime.datetime.now() - start_time).total_seconds()
         num_frames += 1
