@@ -5,21 +5,22 @@ import random
 
 class Splatter:
     opacity = 1
+    alpha = 255
+    outline = Image.open('splatter-original.png')
 
     def __init__(self):
-        outline = Image.open('splatter-original.png')
         color = "%06x" % random.randint(0, 0xFFFFFF)
-        outline.colorize(color)
-        outline.show()
+        self.outline.putalpha(alpha)
+        self.outline.colorize(color)
+        self.outline.show()
 
     def colorize(self, color):
-        self.paste(color)
+        self.outline.paste(color)
 
     def fade(self):
-        self = self.enhance(opacity)
-        if self.opacity > 0
-            self.opacity -= 0.1
-
+        if self.alpha > 0 and self.alpha != -1:
+            self.alpha -= 2
+            self.outline.putalpha(alpha).show()
 
 each frame of hand
 detect palm or fist
