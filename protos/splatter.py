@@ -18,5 +18,12 @@ class Splatter:
         self = self.enhance(opacity)
         if self.opacity > 0
             self.opacity -= 0.1
-
     
+'''
+each frame of hand
+detect palm or fist
+paste splatter over palm coordinate of frame
+
+time of pil to opencv?
+v/v?
+'''
