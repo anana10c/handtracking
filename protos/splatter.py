@@ -20,7 +20,6 @@ class Splatter:
         if self.alpha > 0 and self.alpha != -1:
             self.alpha -= 2
             self.outline.putalpha(alpha).show()
-            
 
 '''
 import cv2
