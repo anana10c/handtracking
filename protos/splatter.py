@@ -1,3 +1,4 @@
+'''
 from PIL import Image
 from PIL import ImageEnhance
 import random
@@ -19,34 +20,34 @@ class Splatter:
         if self.opacity > 0
             self.opacity -= 0.1
 
-    
-'''
+
 each frame of hand
 detect palm or fist
 paste splatter over palm coordinate of frame
 
 time of pil to opencv?
 v/v?
-
+'''
 
 import cv2
 import random
 
 class Splatter:
-    def __init__(self):
-        outline = cv2.imread('splatter-original.png', -1)
-        print(outline.shape)
-        cv2.cvtColor(outline, cv2.COLOR_BGRA2RGBA) #remember to try to convert frame to RGBA also
-        color = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
-        print(color)
-        outline[:, :, 0] = color[0]
-        outline[:, :, 1] = color[1]
-        outline[:, :, 2] = color[2]
-        #outline[:, :, 0:3] = color #not sure if this works reee numpy indexing
+    def __init__(self, color=None):
+        self.outline = cv2.imread('splatter-original.png', -1)
+        print(self.outline.shape)
+        cv2.cvtColor(self.outline, cv2.COLOR_BGRA2RGBA) #remember to try to convert frame to RGBA also
+        if color == None:
+            self.color = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+        else:
+            self.color = color
+        print(self.color)
+        self.outline[:, :, 0] = self.color[0]
+        self.outline[:, :, 1] = self.color[1]
+        self.outline[:, :, 2] = self.color[2]
+        #self.outline[:, :, 0:3] = self.color #not sure if this works reee numpy indexing
+        self.opacity = 1
 
     def fade(self):
-        #alter alpha channel in opencv? is 0 or 255 transparent
-        self = self.enhance(opacity)
         if self.opacity > 0:
             self.opacity -= 0.1
-'''
