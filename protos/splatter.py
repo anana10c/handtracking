@@ -18,7 +18,7 @@ class Splatter:
         self = self.enhance(opacity)
         if self.opacity > 0
             self.opacity -= 0.1
-<<<<<<< HEAD
+
     
 '''
 each frame of hand
@@ -27,10 +27,8 @@ paste splatter over palm coordinate of frame
 
 time of pil to opencv?
 v/v?
-=======
 
 
-'''
 import cv2
 import random
 
@@ -51,5 +49,4 @@ class Splatter:
         self = self.enhance(opacity)
         if self.opacity > 0:
             self.opacity -= 0.1
->>>>>>> origin/master
 '''
