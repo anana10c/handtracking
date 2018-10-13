@@ -7,6 +7,7 @@ import time
 from utils.detector_utils import WebcamVideoStream
 import datetime
 import argparse
+from protos.splatter.py import Splatter
 
 frame_processed = 0
 score_thresh = 0.2
@@ -39,15 +40,13 @@ def worker(input_q, output_q, cap_params, frame_processed):
                 scores, boxes, cap_params['im_width'], cap_params['im_height'],
                 frame)"""
 
-			centers, areas = detector_utils.get_center_and_area(cap_params['num_hands_detect'], cap_params["score_thresh"], scores, boxes, cap_params['im_width'], cap_params['im_height'])
+            centers, areas = detector_utils.get_center_and_area(cap_params['num_hands_detect'], cap_params["score_thresh"], scores, boxes, cap_params['im_width'], cap_params['im_height'])
 
             for x in range(0, cap_params['num_hands_detect']): #add a splatter to the list for every open hand detected
                 splotch = Splatter()
                 splatters.append(splotch)
                 detector_utils.draw_splatter(
-                    cap_params['num_hands_detect'], cap_params["score_thresh"],
-                    scores, boxes, cap_params['im_width'], cap_params['im_height'],
-                    frame, splotch)
+                    cap_params['num_hands_detect'], cap_params["score_thresh"], scores, boxes, cap_params['im_width'], cap_params['im_height'], frame, splotch)
                 for each in splatters:
                     if each.opacity > 0:
                         each.fade()
@@ -175,6 +174,7 @@ if __name__ == '__main__':
             if (args.display > 0):
                 if (args.fps > 0):
                     #detector_utils.draw_fps_on_image("FPS : " + str(int(fps)), output_frame)
+                    pass
                 cv2.imshow('Multi-Threaded Detection', output_frame)
                 if cv2.waitKey(1) & 0xFF == ord('q'):
                     break
