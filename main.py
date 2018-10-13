@@ -10,6 +10,7 @@ import argparse
 
 frame_processed = 0
 score_thresh = 0.2
+splatters = []
 
 # Create a worker thread that loads graph and
 # does detection on images in an input queue and puts it on an output queue
@@ -29,20 +30,29 @@ def worker(input_q, output_q, cap_params, frame_processed):
 
             boxes, scores = detector_utils.detect_objects(
                 frame, detection_graph, sess)
-			
+
 			#fist/palm differentiation here but let's ignore that for now
-			
+
             # draw bounding boxes
-            #detector_utils.draw_box_on_image(
-            #    cap_params['num_hands_detect'], cap_params["score_thresh"],
-            #    scores, boxes, cap_params['im_width'], cap_params['im_height'],
-            #    frame)
-			center, area = detector_utils.get_center_and_area(cap_params['num_hands_detect'], cap_params["score_thresh"], scores, boxes, cap_params['im_width'], cap_params['im_height'])
-			#adjust splatter size according to area
+            detector_utils.draw_box_on_image(
+                cap_params['num_hands_detect'], cap_params["score_thresh"],
+                scores, boxes, cap_params['im_width'], cap_params['im_height'],
+                frame)
+
+			centers, areas = detector_utils.get_center_and_area(cap_params['num_hands_detect'], cap_params["score_thresh"], scores, boxes, cap_params['im_width'], cap_params['im_height'])
+
+            for x in range(0, cap_params['num_hands_detect']):
+                splatters.append(Splatter())
+                for splotch in splatters:
+
+
+
+            #when you make the splatter, be sure to do make it while opacity > 0
+            #adjust splatter size according to area
 			#recolor splatter (replace all RGB values with that of chosen color and do *not* change the A channel
 			#make splatter center match up with box center and paste on
 			#might wanna somehow save all the splatters cuz each new frame gets refreshed and we wanna keep all the splatters
-			
+
 			# add frame with splatters to queue (below)
             output_q.put(frame)
             frame_processed += 1

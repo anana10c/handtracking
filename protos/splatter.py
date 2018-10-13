@@ -1,0 +1,21 @@
+from PIL import Image
+from PIL import ImageEnhance
+import random
+
+class Splatter:
+    opacity = 1
+
+    def __init__(self):
+        outline = Image.open('splatter-original.png')
+        color = "%06x" % random.randint(0, 0xFFFFFF)
+        outline.colorize(color)
+        outline.show()
+
+    def colorize(self, color):
+        self.paste(color)
+
+    def fade(self):
+        self = self.enhance(opacity)
+        self.opacity -= 0.2
+
+    
