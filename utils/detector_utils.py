@@ -73,7 +73,7 @@ def get_corners(num_hands_detect, score_thresh, scores, boxes, im_width, im_heig
             #centers.append((p2[0] + p1[0])/2, (p2[1] + p2[0])/2)
             toplefts.append(p1)
             bottomrights.append(p2)
-            areas.append((p2[0] - p1[0]) * (p2[1] - p2[0]))
+            areas.append(abs(p2[0] - p1[0]) * abs(p2[1] - p2[0]))
     return toplefts, bottomrights, areas
 
 

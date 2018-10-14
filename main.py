@@ -55,7 +55,7 @@ def worker(input_q, output_q, cap_params, frame_processed):
 
             toplefts, bottomrights, areas = detector_utils.get_corners(cap_params['num_hands_detect'], cap_params["score_thresh"], scores, boxes, cap_params['im_width'], cap_params['im_height'])
 
-            if frame_count >= 5:
+            if frame_count >= 2:
                 if len(prev_areas) == 0 or len(areas) == 0:
                     pass
                 # elif len(toplefts) > len(prev_left_corners): #YOU GOTTA GET RID OF THE AREA THAT IS FARTHER FROM PREV-AREAS
@@ -82,15 +82,19 @@ def worker(input_q, output_q, cap_params, frame_processed):
                     current_area = areas[current_index]
                     prev_area = prev_areas[prev_index]
                     if compare_areas(current_area, prev_area, 2):
+                        print("current:", current_area)
+                        print("prev:", prev_area)
                         splatters.append(Splatter(toplefts[current_index], bottomrights[current_index]))
                         frame_count = 0
                     if len(toplefts) == 2 and len(prev_toplefts) == 2:
                         if compare_areas(areas[1-current_index], prev_areas[1-prev_index], 2):
+                            print("current:", current_area)
+                            print("prev:", prev_area)
                             splatters.append(Splatter(toplefts[1-current_index], bottomrights[1-current_index]))
                             frame_count = 0
             else:
                 frame_count += 1
-            
+
             # for x in range(0, len(toplefts)):
             #     splatters.append(Splatter(toplefts[x], bottomrights[x]))
 
