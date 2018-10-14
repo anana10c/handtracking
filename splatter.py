@@ -5,7 +5,9 @@ import random
 class Splatter:
 
     def __init__(self, topleft, bottomright, color=None):
-        self.outline = cv2.imread(str('splatter-'+str(random.randint(1,9))+'.png'), -1)
+        imgnum = str(random.randint(1,8))
+        self.outline = cv2.imread(str('splatter-'+imgnum+'.png'), -1)
+        print("imgnum:", imgnum)
         print("topleft:", topleft)
         print("bottomright:", bottomright)
         self.outline = cv2.resize(self.outline, (bottomright[0]-topleft[0], bottomright[1]-topleft[1]), interpolation = cv2.INTER_AREA)
