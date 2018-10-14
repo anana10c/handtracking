@@ -22,6 +22,6 @@ class Splatter:
     def fade(self):
         #self.outline[self.outline[:, :, 3] >= 4] -= 4
         if self.opacity > 0:
-            self.opacity -= 0.05
+            self.opacity -= 0.1
         if self.opacity < 0:
             self.opacity = 0
