@@ -5,10 +5,6 @@ import random
 class Splatter:
 
     def __init__(self, topleft, bottomright, color=None):
-<<<<<<< HEAD
-        self.outline = cv2.imread('splatter-original.png', -1)
-        self.outline = cv2.resize(self.outline, Size(), (bottomright[0]-topleft[0], bottomright[1]-topleft[1]), interpolation = cv2.INTER_AREA)
-=======
         imgnum = str(random.randint(1,8))
         self.outline = cv2.imread(str('splatter-'+imgnum+'.png'), -1)
         print("imgnum:", imgnum)
@@ -16,7 +12,6 @@ class Splatter:
         print("bottomright:", bottomright)
         self.outline = cv2.resize(self.outline, (bottomright[0]-topleft[0], bottomright[1]-topleft[1]), interpolation = cv2.INTER_AREA)
         print("outline:", self.outline.shape)
->>>>>>> origin/master
         cv2.cvtColor(self.outline, cv2.COLOR_BGRA2RGBA) #remember to try to convert frame to RGBA also
         if color == None:
             self.color = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
