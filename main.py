@@ -40,25 +40,21 @@ def worker(input_q, output_q, cap_params, frame_processed):
                 frame)
             toplefts, bottomrights = detector_utils.get_corners(cap_params['num_hands_detect'], cap_params["score_thresh"], scores, boxes, cap_params['im_width'], cap_params['im_height'])
             for x in range(0, len(toplefts)):
-                print(x)
                 splatters.append(Splatter(toplefts[x], bottomrights[x]))
                 for splotch in splatters:
-                    print(splotch.topleft)
-                    print(splotch.bottomright)
-                    roi = frame[splotch.topleft[0]:splotch.bottomright[0], splotch.topleft[1]:splotch.bottomright[1]]
-                    print(roi.shape)
-                    print(splotch.outline.shape)
+                    if splotch.opacity == 0:
+                        splatters.pop(splotch)
+                        continue
+                    roi = frame[splotch.topleft[1]:splotch.bottomright[1], splotch.topleft[0]:splotch.bottomright[0]]
                     background = roi.copy()
                     overlap = roi.copy()
                     background[splotch.outline[:, :, 3] != 0] = (0, 0, 0)
-                    print(background.shape)
                     overlap[splotch.outline[:, :, 3] == 0] = (0, 0, 0)
-                    print(overlap.shape)
-                    overlap_area = cv2.addWeighted(overlap, 1-splotch.opacity, splotch.outline, splotch.opacity, 0)
+                    overlap_area = cv2.addWeighted(overlap, 1-splotch.opacity, splotch.outline[:, :, 0:3], splotch.opacity, 0)
                     dst = cv2.add(overlap_area, background)
-                    frame[splotch.topleft[0]:splotch.bottomright[0], splotch.topleft[1]:splotch.bottomright[1]] = dst
+                    frame[splotch.topleft[1]:splotch.bottomright[1], splotch.topleft[0]:splotch.bottomright[0]] = dst
                     splotch.fade()
-                    
+
 		#when you make the splatter, be sure to do make it while opacity > 0
 		#adjust splatter size according to area
 		#recolor splatter (replace all RGB values with that of chosen color and do *not* change the A channel
@@ -174,7 +170,7 @@ if __name__ == '__main__':
         elapsed_time = (datetime.datetime.now() - start_time).total_seconds()
         num_frames += 1
         fps = num_frames / elapsed_time
-        # print("frame ",  index, num_frames, elapsed_time, fps)
+        #print("frame ",  index, num_frames, elapsed_time, fps)
 
         if (output_frame is not None):
             if (args.display > 0):
