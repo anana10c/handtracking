@@ -1,37 +1,6 @@
-'''
-from PIL import Image
-from PIL import ImageEnhance
-import random
-
-class Splatter:
-    opacity = 1
-    alpha = 255
-    outline = Image.open('splatter-original.png')
-
-    def __init__(self):
-        color = "%06x" % random.randint(0, 0xFFFFFF)
-        self.outline.putalpha(alpha)
-        self.outline.colorize(color)
-        self.outline.show()
-
-    def colorize(self, color):
-        self.outline.paste(color)
-
-    def fade(self):
-        if self.alpha > 0 and self.alpha != -1:
-            self.alpha -= 2
-            self.outline.putalpha(alpha).show()
-
-each frame of hand
-detect palm or fist
-paste splatter over palm coordinate of frame
-
-time of pil to opencv?
-v/v?
-'''
-
 import cv2
 import random
+# from threading import Timer
 
 class Splatter:
 
