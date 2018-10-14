@@ -34,6 +34,7 @@ import cv2
 import random
 
 class Splatter:
+
     def __init__(self, topleft, bottomright, color=None):
         self.outline = cv2.imread('splatter-original.png', -1)
         self.outline = cv2.resize(self.outline, (bottomright[0]-topleft[0], bottomright[1]-topleft[1]), interpolation = cv2.INTER_AREA)
@@ -51,3 +52,8 @@ class Splatter:
         #self.outline[self.outline[:, :, 3] >= 4] -= 4
         if self.opacity >= 0.05:
             self.opacity -= 0.05
+
+
+'''
+timer
+ctdown
