@@ -8,19 +8,32 @@ from utils.detector_utils import WebcamVideoStream
 import datetime
 import argparse
 from splatter import Splatter
+import math
 
 frame_processed = 0
 score_thresh = 0.2
 splatters = []
 
+"""
+prev_areas = []
+prev_left_corners = []
+after every frame does its thing, prev_areas beceomes equal to whats in areas
+
+if prev_areas length != 0
+check if the len(areas) == len(prev_areas)
+if not
+"""
+
+
 # Create a worker thread that loads graph and
 # does detection on images in an input queue and puts it on an output queue
-
 
 def worker(input_q, output_q, cap_params, frame_processed):
     print(">> loading frozen model for worker")
     detection_graph, sess = detector_utils.load_inference_graph()
     sess = tf.Session(graph=detection_graph)
+    prev_areas = []
+    prev_toplefts = []
     while True:
         #print("> ===== in worker loop, frame ", frame_processed)
         frame = input_q.get()
@@ -38,16 +51,50 @@ def worker(input_q, output_q, cap_params, frame_processed):
                 cap_params['num_hands_detect'], cap_params["score_thresh"],
                 scores, boxes, cap_params['im_width'], cap_params['im_height'],
                 frame)
-            toplefts, bottomrights = detector_utils.get_corners(cap_params['num_hands_detect'], cap_params["score_thresh"], scores, boxes, cap_params['im_width'], cap_params['im_height'])
-            for x in range(0, len(toplefts)):
-                print(x)
-                splatters.append(Splatter(toplefts[x], bottomrights[x]))
+
+            toplefts, bottomrights, areas = detector_utils.get_corners(cap_params['num_hands_detect'], cap_params["score_thresh"], scores, boxes, cap_params['im_width'], cap_params['im_height'])
+
+            #check ALL THE GAYS
+            if len(prev_areas) == 0 or len(areas) == 0:
+                pass
+            # elif len(toplefts) > len(prev_left_corners): #YOU GOTTA GET RID OF THE AREA THAT IS FARTHER FROM PREV-AREAS
+            #     prev_area = prev_areas[0]
+            #     if point_distance(prev_left_corners[0], toplefts[0]) > point_distance(prev_left_corners[0], toplefts[1]):
+            #         current_area = areas[1]
+            #     else:
+            #         current_area = areas[0]
+            # elif len(toplefts) < len(prev_left_corners): #YOU GOTTA GET RID OF THE PREV-AREA THAT IS FURTHER AWAY FROM AREA
+            #     current_area = areas[0]
+            #     if point_distance(prev_left_corners[0], toplefts[0]) > point_distance(prev_left_corners[1], toplefts[0]):
+            #         prev_area = [1]
+            #     else:
+            #         prev_area = [0]
+            # elif len(toplefts) == 1:
+            #     current_area = areas[0]
+            #     prev_area = prev_areas[0]
+            else:
+                dist = {}
+                for current_index in range(len(toplefts)):
+                    for prev_index in range(len(prev_toplefts)):
+                        dist[point_distance(toplefts[current_index], prev_toplefts[prev_index])] = (current_index, prev_index)
+                indices = dist[min(dist.keys())]
+                current_area = areas[current_index]
+                prev_area = prev_areas[prev_index]
+                if compare_areas(current_area, prev_area, 2):
+                    splatters.append(Splatter(toplefts[current_index], bottomrights[current_index]))
+                if len(toplefts) == 2 and len(prev_toplefts) == 2:
+                    if compare_areas(areas[1-current_index], prev_areas[1-prev_index], 2):
+                        splatters.append(Splatter(toplefts[1-current_index], bottomrights[1-current_index]))
+
+            # for x in range(0, len(toplefts)):
+            #     splatters.append(Splatter(toplefts[x], bottomrights[x]))
+
             for splotch in splatters:
                 if splotch.opacity == 0:
                     splatters.remove(splotch)
                     continue
+
                 roi = frame[splotch.topleft[1]:splotch.bottomright[1], splotch.topleft[0]:splotch.bottomright[0]]
-                print("roi:", roi.shape)
                 background = roi.copy()
                 overlap = roi.copy()
                 background[splotch.outline[:, :, 3] != 0] = (0, 0, 0)
@@ -57,11 +104,9 @@ def worker(input_q, output_q, cap_params, frame_processed):
                 frame[splotch.topleft[1]:splotch.bottomright[1], splotch.topleft[0]:splotch.bottomright[0]] = dst
                 splotch.fade()
 
-		#when you make the splatter, be sure to do make it while opacity > 0
-		#adjust splatter size according to area
-		#recolor splatter (replace all RGB values with that of chosen color and do *not* change the A channel
-		#make splatter center match up with box center and paste on
-		#might wanna somehow save all the splatters cuz each new frame gets refreshed and we wanna keep all the splatters
+            prev_areas = areas.copy()
+            prev_toplefts = toplefts.copy()
+
 
 	    # add frame with splatters to queue (below)
             output_q.put(frame)
@@ -69,6 +114,12 @@ def worker(input_q, output_q, cap_params, frame_processed):
         else:
             output_q.put(frame)
     sess.close()
+
+def point_distance(p1, p2): #p1 and p2 are tuples of two integers
+	return math.sqrt((p2[0]-p1[0])**2 + (p2[1]-p1[1])**2)
+
+def compare_areas(current_area, prev_area, factor):
+	return (current_area >= factor * prev_area)
 
 
 if __name__ == '__main__':
