@@ -41,19 +41,19 @@ def worker(input_q, output_q, cap_params, frame_processed):
             toplefts, bottomrights = detector_utils.get_corners(cap_params['num_hands_detect'], cap_params["score_thresh"], scores, boxes, cap_params['im_width'], cap_params['im_height'])
             for x in range(0, len(toplefts)):
                 splatters.append(Splatter(toplefts[x], bottomrights[x]))
-                for splotch in splatters:
-                    if splotch.opacity == 0:
-                        splatters.pop(splotch)
-                        continue
-                    roi = frame[splotch.topleft[1]:splotch.bottomright[1], splotch.topleft[0]:splotch.bottomright[0]]
-                    background = roi.copy()
-                    overlap = roi.copy()
-                    background[splotch.outline[:, :, 3] != 0] = (0, 0, 0)
-                    overlap[splotch.outline[:, :, 3] == 0] = (0, 0, 0)
-                    overlap_area = cv2.addWeighted(overlap, 1-splotch.opacity, splotch.outline[:, :, 0:3], splotch.opacity, 0)
-                    dst = cv2.add(overlap_area, background)
-                    frame[splotch.topleft[1]:splotch.bottomright[1], splotch.topleft[0]:splotch.bottomright[0]] = dst
-                    splotch.fade()
+            for splotch in splatters:
+                if splotch.opacity == 0:
+                    splatters.pop(splotch)
+                    continue
+                roi = frame[splotch.topleft[1]:splotch.bottomright[1], splotch.topleft[0]:splotch.bottomright[0]]
+                background = roi.copy()
+                overlap = roi.copy()
+                background[splotch.outline[:, :, 3] != 0] = (0, 0, 0)
+                overlap[splotch.outline[:, :, 3] == 0] = (0, 0, 0)
+                overlap_area = cv2.addWeighted(overlap, 1-splotch.opacity, splotch.outline[:, :, 0:3], splotch.opacity, 0)
+                dst = cv2.add(overlap_area, background)
+                frame[splotch.topleft[1]:splotch.bottomright[1], splotch.topleft[0]:splotch.bottomright[0]] = dst
+                splotch.fade()
 
 		#when you make the splatter, be sure to do make it while opacity > 0
 		#adjust splatter size according to area
