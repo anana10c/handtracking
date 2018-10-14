@@ -34,6 +34,7 @@ def worker(input_q, output_q, cap_params, frame_processed):
     sess = tf.Session(graph=detection_graph)
     prev_areas = []
     prev_toplefts = []
+    frame_count = 0
     while True:
         #print("> ===== in worker loop, frame ", frame_processed)
         frame = input_q.get()
@@ -54,38 +55,41 @@ def worker(input_q, output_q, cap_params, frame_processed):
 
             toplefts, bottomrights, areas = detector_utils.get_corners(cap_params['num_hands_detect'], cap_params["score_thresh"], scores, boxes, cap_params['im_width'], cap_params['im_height'])
 
-            #check ALL THE GAYS
-            if len(prev_areas) == 0 or len(areas) == 0:
-                pass
-            # elif len(toplefts) > len(prev_left_corners): #YOU GOTTA GET RID OF THE AREA THAT IS FARTHER FROM PREV-AREAS
-            #     prev_area = prev_areas[0]
-            #     if point_distance(prev_left_corners[0], toplefts[0]) > point_distance(prev_left_corners[0], toplefts[1]):
-            #         current_area = areas[1]
-            #     else:
-            #         current_area = areas[0]
-            # elif len(toplefts) < len(prev_left_corners): #YOU GOTTA GET RID OF THE PREV-AREA THAT IS FURTHER AWAY FROM AREA
-            #     current_area = areas[0]
-            #     if point_distance(prev_left_corners[0], toplefts[0]) > point_distance(prev_left_corners[1], toplefts[0]):
-            #         prev_area = [1]
-            #     else:
-            #         prev_area = [0]
-            # elif len(toplefts) == 1:
-            #     current_area = areas[0]
-            #     prev_area = prev_areas[0]
+            if frame_count == 3:
+                frame_count = 0
+                if len(prev_areas) == 0 or len(areas) == 0:
+                    pass
+                # elif len(toplefts) > len(prev_left_corners): #YOU GOTTA GET RID OF THE AREA THAT IS FARTHER FROM PREV-AREAS
+                #     prev_area = prev_areas[0]
+                #     if point_distance(prev_left_corners[0], toplefts[0]) > point_distance(prev_left_corners[0], toplefts[1]):
+                #         current_area = areas[1]
+                #     else:
+                #         current_area = areas[0]
+                # elif len(toplefts) < len(prev_left_corners): #YOU GOTTA GET RID OF THE PREV-AREA THAT IS FURTHER AWAY FROM AREA
+                #     current_area = areas[0]
+                #     if point_distance(prev_left_corners[0], toplefts[0]) > point_distance(prev_left_corners[1], toplefts[0]):
+                #         prev_area = [1]
+                #     else:
+                #         prev_area = [0]
+                # elif len(toplefts) == 1:
+                #     current_area = areas[0]
+                #     prev_area = prev_areas[0]
+                else:
+                    dist = {}
+                    for current_index in range(len(toplefts)):
+                        for prev_index in range(len(prev_toplefts)):
+                            dist[point_distance(toplefts[current_index], prev_toplefts[prev_index])] = (current_index, prev_index)
+                    indices = dist[min(dist.keys())]
+                    current_area = areas[current_index]
+                    prev_area = prev_areas[prev_index]
+                    if compare_areas(current_area, prev_area, 2):
+                        splatters.append(Splatter(toplefts[current_index], bottomrights[current_index]))
+                    if len(toplefts) == 2 and len(prev_toplefts) == 2:
+                        if compare_areas(areas[1-current_index], prev_areas[1-prev_index], 2):
+                            splatters.append(Splatter(toplefts[1-current_index], bottomrights[1-current_index]))
             else:
-                dist = {}
-                for current_index in range(len(toplefts)):
-                    for prev_index in range(len(prev_toplefts)):
-                        dist[point_distance(toplefts[current_index], prev_toplefts[prev_index])] = (current_index, prev_index)
-                indices = dist[min(dist.keys())]
-                current_area = areas[current_index]
-                prev_area = prev_areas[prev_index]
-                if compare_areas(current_area, prev_area, 2):
-                    splatters.append(Splatter(toplefts[current_index], bottomrights[current_index]))
-                if len(toplefts) == 2 and len(prev_toplefts) == 2:
-                    if compare_areas(areas[1-current_index], prev_areas[1-prev_index], 2):
-                        splatters.append(Splatter(toplefts[1-current_index], bottomrights[1-current_index]))
-
+                frame_count += 1
+            
             # for x in range(0, len(toplefts)):
             #     splatters.append(Splatter(toplefts[x], bottomrights[x]))
 
