@@ -52,8 +52,3 @@ class Splatter:
         #self.outline[self.outline[:, :, 3] >= 4] -= 4
         if self.opacity >= 0.05:
             self.opacity -= 0.05
-
-
-'''
-timer
-ctdown
