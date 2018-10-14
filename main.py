@@ -43,7 +43,7 @@ def worker(input_q, output_q, cap_params, frame_processed):
                 splatters.append(Splatter(toplefts[x], bottomrights[x]))
             for splotch in splatters:
                 if splotch.opacity == 0:
-                    splatters.pop(splotch)
+                    splatters.remove(splotch)
                     continue
                 roi = frame[splotch.topleft[1]:splotch.bottomright[1], splotch.topleft[0]:splotch.bottomright[0]]
                 background = roi.copy()
