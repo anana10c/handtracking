@@ -56,21 +56,6 @@ def worker(input_q, output_q, cap_params, frame_processed):
             if frame_count >= 2:
                 if len(prev_areas) == 0 or len(areas) == 0:
                     pass
-                # elif len(toplefts) > len(prev_left_corners): #YOU GOTTA GET RID OF THE AREA THAT IS FARTHER FROM PREV-AREAS
-                #     prev_area = prev_areas[0]
-                #     if point_distance(prev_left_corners[0], toplefts[0]) > point_distance(prev_left_corners[0], toplefts[1]):
-                #         current_area = areas[1]
-                #     else:
-                #         current_area = areas[0]
-                # elif len(toplefts) < len(prev_left_corners): #YOU GOTTA GET RID OF THE PREV-AREA THAT IS FURTHER AWAY FROM AREA
-                #     current_area = areas[0]
-                #     if point_distance(prev_left_corners[0], toplefts[0]) > point_distance(prev_left_corners[1], toplefts[0]):
-                #         prev_area = [1]
-                #     else:
-                #         prev_area = [0]
-                # elif len(toplefts) == 1:
-                #     current_area = areas[0]
-                #     prev_area = prev_areas[0]
                 else:
                     dist = {}
                     for current_index in range(len(toplefts)):
