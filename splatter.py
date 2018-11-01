@@ -13,7 +13,7 @@ class Splatter:
             self.color = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
         else:
             self.color = color
-        self.outline[:, :, 0:3][self.outline[:, :, 3] != 0] = self.color #not sure if this works reee numpy indexing
+        self.outline[:, :, 0:3][self.outline[:, :, 3] != 0] = self.color
         self.outline[:, :, 0:3][self.outline[:, :, 3] == 0] = (0, 0, 0)
         self.opacity = 1
         self.topleft = topleft
